@@ -43,7 +43,7 @@ import requests
 import re 
 
 CHANNEL_ID = "UCMnig2Zwu_aHwu9LS_2XsgA"  #
-API_KEY = "AIzaSyAX31k0n177F6kQlZuAQY5BErBnZaS896I"  # 
+API_KEY = "miko_lebak_official"  # 
 
 url = f"https://www.googleapis.com/youtube/v3/search?key={API_KEY}&channelId={CHANNEL_ID}&part=snippet,id&order=date&maxResults=5" 
 
