@@ -1,0 +1,67 @@
+# Mikolebak Official - YouTube Videos 
+
+Daftar terbaru dari channel [Mikolebak Official](https://youtube.com/@mikolebakofficial?si=d9-fudyqfvSSnmAT): 
+
+<!-- YOUTUBE-VIDEO-LIST:START -->
+<!-- YOUTUBE-VIDEO-LIST:END --> 
+
+name: Update YouTube Videos 
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # setiap jam
+  workflow_dispatch: 
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest 
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3 
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x' 
+
+    - name: Install dependencies
+      run: pip install requests 
+
+    - name: Update README
+      run: python update.py 
+
+    - name: Commit changes
+      run: |
+        git config user.name 'github-actions'
+        git config user.email 'github-actions@github.com'
+        git add README.md
+        git commit -m "update: latest YouTube videos" || echo "No changes"
+        git push 
+
+import requests
+import re 
+
+CHANNEL_ID = "UCMnig2Zwu_aHwu9LS_2XsgA"  #
+API_KEY = "AIzaSyAX31k0n177F6kQlZuAQY5BErBnZaS896I"  # 
+
+url = f"https://www.googleapis.com/youtube/v3/search?key={API_KEY}&channelId={CHANNEL_ID}&part=snippet,id&order=date&maxResults=5" 
+
+res = requests.get(url).json() 
+
+videos_md = ""
+for item in res['items']:
+    if item['id']['kind'] == "youtube#video":
+        title = item['snippet']['title']
+        video_id = item['id']['videoId']
+        videos_md += f"- [{title}](https://www.youtube.com/watch?v={video_id})\n" 
+
+with open("README.md", "r", encoding="utf-8") as f:
+    content = f.read() 
+
+new_content = re.sub(r"<!-- YOUTUBE-VIDEO-LIST:START -->(.*?)<!-- YOUTUBE-VIDEO-LIST:END -->",
+                     f"<!-- YOUTUBE-VIDEO-LIST:START -->\n{videos_md}<!-- YOUTUBE-VIDEO-LIST:END -->",
+                     content, flags=re.DOTALL) 
+
+with open("README.md", "w", encoding="utf-8") as f:
+    f.write(new_content)
